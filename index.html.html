@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KHAJA TELECOM</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --primary:#1a1a2e;--accent:#4f46e5;--accent-light:#818cf8;--accent-bg:#eef2ff;
+  --success:#059669;--success-bg:#d1fae5;--danger:#dc2626;--danger-bg:#fee2e2;
+  --warning:#d97706;--warning-bg:#fef3c7;
+  --surface:#fff;--surface-1:#f8fafc;--surface-2:#f1f5f9;
+  --border:#e2e8f0;--text:#0f172a;--text-2:#475569;--text-3:#94a3b8;
+  --sw:220px;--hh:56px;--r:8px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--surface-1);color:var(--text);font-size:14px;display:flex;min-height:100vh}
+#sidebar{width:var(--sw);background:var(--primary);color:#fff;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.logo-wrap{padding:14px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:10px}
+#logo-icon{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+#logo-icon img{width:100%;height:100%;object-fit:cover}
+.logo-text{font-size:15px;font-weight:600}
+.logo-sub{font-size:11px;color:#94a3b8}
+.store-sel{margin:10px;background:rgba(255,255,255,.08);border-radius:6px;padding:7px 10px;display:flex;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.1)}
+.store-sel select{background:transparent;border:none;color:#fff;font-size:13px;flex:1;outline:none;cursor:pointer}
+.store-sel select option{background:#1a1a2e}
+.nav-sec{padding:6px 0}
+.nav-lbl{padding:5px 14px;font-size:10px;letter-spacing:.08em;color:#64748b;text-transform:uppercase;font-weight:600}
+.nav-i{display:flex;align-items:center;gap:9px;padding:8px 14px;cursor:pointer;color:#94a3b8;font-size:13px;transition:all .15s;border-left:3px solid transparent}
+.nav-i:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav-i.active{background:rgba(79,70,229,.2);color:#818cf8;border-left-color:#4f46e5}
+.nav-i .ic{width:18px;text-align:center;font-size:15px;flex-shrink:0}
+.nav-i .badge{margin-left:auto;background:#dc2626;color:#fff;font-size:10px;padding:2px 6px;border-radius:10px}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:10px;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:600;flex:1}
+.search-box{display:flex;align-items:center;gap:6px;background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r);padding:6px 10px;min-width:180px}
+.search-box input{border:none;background:transparent;outline:none;font-size:13px;width:100%}
+.btn{padding:6px 14px;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);transition:all .15s}
+.btn:hover{background:var(--surface-2)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:#4338ca}
+.btn-sm{padding:4px 10px;font-size:12px}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border-color:#fca5a5}
+.btn-success{background:var(--success-bg);color:var(--success);border-color:#6ee7b7}
+.uavatar{width:32px;height:32px;border-radius:50%;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;cursor:pointer;overflow:hidden;flex-shrink:0}
+#content{flex:1;overflow-y:auto;padding:18px}
+.page{display:none}
+.page.active{display:block}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px}
+.stat-lbl{font-size:11px;color:var(--text-3);margin-bottom:5px;font-weight:500}
+.stat-val{font-size:20px;font-weight:600}
+.stat-ch{font-size:11px;margin-top:3px;color:var(--success)}
+.stat-icon{float:right;font-size:22px;opacity:.6}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.card-hd{padding:12px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.card-title{font-size:14px;font-weight:600;flex:1}
+table{width:100%;border-collapse:collapse}
+th{padding:9px 13px;text-align:left;font-size:11px;font-weight:600;color:var(--text-3);background:var(--surface-1);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.04em}
+td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface-1)}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+.bs{background:var(--success-bg);color:var(--success)}
+.bw{background:var(--warning-bg);color:var(--warning)}
+.bd{background:var(--danger-bg);color:var(--danger)}
+.ba{background:var(--accent-bg);color:var(--accent)}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fl{font-size:12px;font-weight:500;color:var(--text-2)}
+.fc{padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;outline:none;transition:border-color .15s;background:var(--surface);width:100%}
+.fc:focus{border-color:var(--accent)}
+.fg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;padding:15px}
+.f-act{padding:12px 15px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:12px;width:min(520px,95vw);max-height:90vh;overflow-y:auto}
+.modal-hd{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center}
+.modal-hd h3{flex:1;font-size:15px;font-weight:600}
+.xbtn{cursor:pointer;font-size:18px;color:var(--text-3);padding:2px 6px;border-radius:4px}
+.xbtn:hover{background:var(--surface-2)}
+.pos-lay{display:grid;grid-template-columns:1fr 300px;gap:14px;height:calc(100vh - var(--hh) - 36px)}
+.pos-prods{overflow-y:auto}
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.prod-tile{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px;cursor:pointer;transition:all .15s;text-align:center}
+.prod-tile:hover{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
+.prod-tile .pn{font-size:12px;font-weight:500;margin-top:5px;line-height:1.3}
+.prod-tile .pp{font-size:13px;font-weight:600;color:var(--accent);margin-top:3px}
+.prod-tile .ps{font-size:11px;color:var(--text-3)}
+.pos-cart{background:var(--surface);border:1px solid var(--border);border-radius:12px;display:flex;flex-direction:column;overflow:hidden}
+.cart-hd{padding:10px 13px;border-bottom:1px solid var(--border);font-weight:600;font-size:13px}
+.cart-items{flex:1;overflow-y:auto;padding:6px}
+.ci{display:flex;align-items:center;gap:7px;padding:7px;border-radius:6px;margin-bottom:3px}
+.ci:hover{background:var(--surface-1)}
+.ci-name{flex:1;font-size:12px;font-weight:500;line-height:1.3}
+.qty-row{display:flex;align-items:center;gap:3px}
+.qb{width:20px;height:20px;border-radius:4px;border:1px solid var(--border);background:var(--surface-1);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
+.qb:hover{background:var(--surface-2)}
+.ci-pr{font-size:12px;font-weight:600;min-width:48px;text-align:right}
+.cart-ft{padding:10px 13px;border-top:1px solid var(--border)}
+.crow{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;color:var(--text-2)}
+.ctotal{display:flex;justify-content:space-between;font-size:14px;font-weight:600;margin:7px 0}
+.alert{padding:9px 13px;border-radius:var(--r);font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.alert-w{background:var(--warning-bg);color:#92400e;border:1px solid #fcd34d}
+.alert-d{background:var(--danger-bg);color:#991b1b;border:1px solid #fca5a5}
+.alert-s{background:var(--success-bg);color:#065f46;border:1px solid #6ee7b7}
+.stabs{display:flex;gap:3px;margin-bottom:14px;border-bottom:1px solid var(--border)}
+.stab{padding:7px 13px;cursor:pointer;font-size:13px;color:var(--text-2);border-bottom:2px solid transparent;margin-bottom:-1px}
+.stab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
+.spanel{display:none}
+.spanel.active{display:block}
+.urow{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 13px;display:flex;align-items:center;gap:11px;margin-bottom:8px}
+.uav{width:34px;height:34px;border-radius:50%;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;flex-shrink:0}
+.uinfo{flex:1}
+.uname{font-weight:500;font-size:13px}
+.urole{font-size:11px;color:var(--text-3)}
+.empty-state{padding:32px;text-align:center;color:var(--text-3);font-size:13px}
+.sec-title{font-size:15px;font-weight:600;margin-bottom:13px}
+.loading{text-align:center;padding:20px;color:var(--text-3);font-size:13px}
+.tag-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.tag-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px;display:flex;align-items:center;gap:10px}
+.tag-icon{font-size:22px}
+.tag-info .tn{font-size:13px;font-weight:500}
+.tag-info .tc{font-size:11px;color:var(--text-3);margin-top:2px}
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <div class="logo-wrap">
+    <div id="logo-icon">K</div>
+    <div>
+      <div class="logo-text" id="logo-name">KHAJA TELECOM</div>
+      <div class="logo-sub">Mobile Accessories</div>
+    </div>
+  </div>
+  <div class="store-sel">
+    <span>🏪</span>
+    <select id="store-sel" onchange="changeStore(this)"></select>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-lbl">Main</div>
+    <div class="nav-i active" onclick="go('dashboard')"><span class="ic">📊</span>Dashboard</div>
+    <div class="nav-i" onclick="go('pos')"><span class="ic">🛒</span>Point of Sale</div>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-lbl">Inventory</div>
+    <div class="nav-i" onclick="go('products')"><span class="ic">📦</span>Products</div>
+    <div class="nav-i" onclick="go('categories')"><span class="ic">🗂️</span>Categories</div>
+    <div class="nav-i" onclick="go('stock')"><span class="ic">📋</span>Stock Log</div>
+    <div class="nav-i" onclick="go('lowstock')"><span class="ic">⚠️</span>Low Stock <span class="badge" id="lowbadge">0</span></div>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-lbl">Trade</div>
+    <div class="nav-i" onclick="go('purchases')"><span class="ic">🛍️</span>Purchases</div>
+    <div class="nav-i" onclick="go('sales')"><span class="ic">💰</span>Sales History</div>
+    <div class="nav-i" onclick="go('suppliers')"><span class="ic">🏭</span>Suppliers</div>
+    <div class="nav-i" onclick="go('customers')"><span class="ic">👥</span>Customers</div>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-lbl">Finance</div>
+    <div class="nav-i" onclick="go('expenses')"><span class="ic">📉</span>Expenses</div>
+    <div class="nav-i" onclick="go('reports')"><span class="ic">📈</span>Reports</div>
+    <div class="nav-i" onclick="go('warranty')"><span class="ic">🛡️</span>Warranty</div>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-lbl">System</div>
+    <div class="nav-i" onclick="go('settings')"><span class="ic">⚙️</span>Settings</div>
+  </div>
+</div>
+
+<div id="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="search-box"><span>🔍</span><input type="text" id="global-search" placeholder="Search products..."></div>
+    <div class="uavatar" id="uavatar" onclick="go('settings')">R</div>
+  </div>
+  <div id="content">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="stat-grid" id="dash-stats">
+        <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-lbl">Today's Sales</div><div class="stat-val" id="d-today">৳0</div></div>
+        <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-lbl">Total Products</div><div class="stat-val" id="d-prods">0</div></div>
+        <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-lbl">Customers</div><div class="stat-val" id="d-custs">0</div></div>
+        <div class="stat-card"><div class="stat-icon">⚠️</div><div class="stat-lbl">Low Stock Items</div><div class="stat-val" id="d-low" style="color:var(--danger)">0</div></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">Recent Sales</div><button class="btn btn-sm" onclick="go('sales')">View All</button></div>
+        <div id="dash-sales"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- POS -->
+    <div id="page-pos" class="page">
+      <div class="pos-lay">
+        <div class="pos-prods">
+          <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap" id="cat-filters">
+            <button class="btn btn-primary btn-sm" onclick="filterPOS('')">All</button>
+          </div>
+          <div class="prod-grid" id="pos-grid"><div class="loading">Loading products...</div></div>
+        </div>
+        <div class="pos-cart">
+          <div class="cart-hd">🛒 Sale <span style="float:right;font-size:11px;color:var(--text-3)" id="cart-count">0 items</span></div>
+          <div style="padding:7px">
+            <select class="fc" id="pos-cust" style="font-size:12px">
+              <option value="">Walk-in Customer</option>
+            </select>
+          </div>
+          <div class="cart-items" id="cart-items"><div class="empty-state">No items.<br>Click a product.</div></div>
+          <div class="cart-ft">
+            <div class="crow"><span>Subtotal</span><span id="cart-sub">৳0</span></div>
+            <div class="crow"><span>Discount</span><span><input type="number" id="disc-inp" value="0" min="0" style="width:55px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;font-size:12px" oninput="renderCart()"> ৳</span></div>
+            <div class="ctotal"><span>Total</span><span id="cart-total">৳0</span></div>
+            <div style="display:flex;gap:5px;margin-top:6px">
+              <select class="fc" id="pay-method" style="font-size:12px"><option>Cash</option><option>Card</option><option>bKash</option><option>Due</option></select>
+              <button class="btn btn-primary" style="flex:1" onclick="completeSale()" id="charge-btn">💳 Charge</button>
+            </div>
+            <button class="btn btn-danger btn-sm" style="width:100%;margin-top:5px" onclick="clearCart()">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div id="page-products" class="page">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px">
+        <div class="sec-title" style="margin:0">Products</div>
+        <button class="btn btn-primary" onclick="openModal('m-product')">+ Add Product</button>
+      </div>
+      <div class="card">
+        <div class="card-hd">
+          <div class="card-title" id="prod-count">All Products</div>
+          <select class="fc btn-sm" style="width:auto;font-size:12px" id="prod-cat-filter" onchange="loadProducts()">
+            <option value="">All Categories</option>
+          </select>
+        </div>
+        <div id="prod-table"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div id="page-categories" class="page">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px">
+        <div class="sec-title" style="margin:0">Categories</div>
+        <button class="btn btn-primary" onclick="openModal('m-category')">+ Add Category</button>
+      </div>
+      <div class="tag-grid" id="cat-grid"><div class="loading">Loading...</div></div>
+    </div>
+
+    <!-- STOCK LOG -->
+    <div id="page-stock" class="page">
+      <div style="display:flex;gap:8px;margin-bottom:13px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="openModal('m-stockin')">📥 Stock In</button>
+        <button class="btn" onclick="openModal('m-stockout')">📤 Stock Out</button>
+        <button class="btn" onclick="openModal('m-stockadj')">⚖️ Adjust</button>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">Stock Log</div></div>
+        <div id="stock-table"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- LOW STOCK -->
+    <div id="page-lowstock" class="page">
+      <div class="sec-title">Low Stock Alert</div>
+      <div class="alert alert-d" id="low-alert">Loading...</div>
+      <div class="card">
+        <div id="lowstock-table"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- PURCHASES -->
+    <div id="page-purchases" class="page">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px">
+        <div class="sec-title" style="margin:0">Purchases</div>
+        <button class="btn btn-primary" onclick="openModal('m-purchase')">+ New Purchase</button>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">Purchase History</div></div>
+        <div id="purchase-table"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- SALES HISTORY -->
+    <div id="page-sales" class="page">
+      <div class="sec-title">Sales History</div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">All Invoices</div></div>
+        <div id="sales-table"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- SUPPLIERS -->
+    <div id="page-suppliers" class="page">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px">
+        <div class="sec-title" style="margin:0">Suppliers</div>
+        <button class="btn btn-primary" onclick="openModal('m-supplier')">+ Add Supplier</button>
+      </div>
+      <div class="card">
+        <div id="supplier-table"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- CUSTOMERS -->
+    <div id="page-customers" class="page">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px">
+        <div class="sec-title" style="margin:0">Customers</div>
+        <button class="btn btn-primary" onclick="openModal('m-customer')">+ Add Customer</button>
+      </div>
+      <div class="card">
+        <div id="customer-table"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- EXPENSES -->
+    <div id="page-expenses" class="page">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px">
+        <div class="sec-title" style="margin:0">Expenses</div>
+        <button class="btn btn-primary" onclick="openModal('m-expense')">+ Add Expense</button>
+      </div>
+      <div class="card">
+        <div id="expense-table"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div id="page-reports" class="page">
+      <div class="sec-title">Reports</div>
+      <div class="stat-grid" id="report-stats" style="margin-bottom:16px"></div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">Top Selling Products</div></div>
+        <div id="report-table"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- WARRANTY -->
+    <div id="page-warranty" class="page">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px">
+        <div class="sec-title" style="margin:0">Warranty</div>
+        <button class="btn btn-primary" onclick="openModal('m-warranty')">+ Register</button>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-hd"><div class="card-title">🔍 Check by IMEI / Invoice</div></div>
+        <div style="padding:12px;display:flex;gap:8px">
+          <input class="fc" id="w-search" placeholder="Enter IMEI or Invoice number...">
+          <button class="btn btn-primary" onclick="searchWarranty()">Check</button>
+        </div>
+        <div id="w-result" style="padding:0 12px 12px;display:none"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">All Warranties</div></div>
+        <div id="warranty-table"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="page-settings" class="page">
+      <div class="sec-title">Settings</div>
+      <div class="stabs">
+        <div class="stab active" onclick="stab('shop')">🏪 Shop & Logo</div>
+        <div class="stab" onclick="stab('stores')">🏬 Stores</div>
+        <div class="stab" onclick="stab('users')">👤 Users</div>
+      </div>
+
+      <!-- SHOP -->
+      <div class="spanel active" id="sp-shop">
+        <div class="card">
+          <div class="card-hd"><div class="card-title">Shop Info & Logo</div></div>
+          <div class="fg-grid">
+            <div class="fg" style="grid-column:1/-1">
+              <label class="fl">Logo</label>
+              <div style="display:flex;align-items:center;gap:14px;margin-top:4px">
+                <div id="logo-preview" style="width:68px;height:68px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;font-weight:700;flex-shrink:0;overflow:hidden">K</div>
+                <div>
+                  <input type="file" id="logo-file" accept="image/*" style="display:none" onchange="uploadLogo(this)">
+                  <button class="btn btn-sm btn-primary" onclick="document.getElementById('logo-file').click()">📁 Upload Image</button>
+                  <div style="font-size:11px;color:var(--text-3);margin-top:4px">PNG/JPG · Max 1MB</div>
+                  <div style="margin-top:6px;display:flex;align-items:center;gap:6px">
+                    <span style="font-size:12px;color:var(--text-2)">Or emoji:</span>
+                    <input type="text" id="logo-emoji" class="fc" style="width:54px;text-align:center;font-size:18px;padding:4px" maxlength="2" placeholder="📱" oninput="previewEmoji(this.value)">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="fg"><label class="fl">Shop Name</label><input class="fc" id="s-name" placeholder="KHAJA TELECOM"></div>
+            <div class="fg"><label class="fl">Tagline</label><input class="fc" id="s-tag" placeholder="Mobile Accessories Expert"></div>
+            <div class="fg"><label class="fl">Phone</label><input class="fc" id="s-phone" placeholder="01700-000000"></div>
+            <div class="fg"><label class="fl">Email</label><input class="fc" id="s-email" placeholder="shop@example.com"></div>
+            <div class="fg" style="grid-column:1/-1"><label class="fl">Address</label><input class="fc" id="s-addr" placeholder="Shop address"></div>
+            <div class="fg"><label class="fl">Currency Symbol</label><input class="fc" id="s-curr" placeholder="৳" value="৳" maxlength="3"></div>
+            <div class="fg"><label class="fl">Invoice Prefix</label><input class="fc" id="s-prefix" placeholder="INV-" value="INV-"></div>
+          </div>
+          <div class="f-act">
+            <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STORES -->
+      <div class="spanel" id="sp-stores">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="font-size:14px;font-weight:500">Branches / Stores</div>
+          <button class="btn btn-primary" onclick="openModal('m-store')">+ Add Store</button>
+        </div>
+        <div id="store-list"><div class="loading">Loading...</div></div>
+      </div>
+
+      <!-- USERS -->
+      <div class="spanel" id="sp-users">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="font-size:14px;font-weight:500">User Accounts</div>
+          <button class="btn btn-primary" onclick="openModal('m-user')">+ Add User</button>
+        </div>
+        <div id="user-list"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="overlay" id="m-product">
+  <div class="modal">
+    <div class="modal-hd"><h3>Add Product</h3><span class="xbtn" onclick="closeModal('m-product')">✕</span></div>
+    <div class="fg-grid">
+      <div class="fg" style="grid-column:1/-1"><label class="fl">Product Name *</label><input class="fc" id="p-name" placeholder="e.g. Samsung 65W Charger"></div>
+      <div class="fg"><label class="fl">SKU / Barcode</label><input class="fc" id="p-sku" placeholder="SKU-001"></div>
+      <div class="fg"><label class="fl">Category</label><select class="fc" id="p-cat"><option value="">Select...</option></select></div>
+      <div class="fg"><label class="fl">Brand</label><input class="fc" id="p-brand" placeholder="Samsung, Anker..."></div>
+      <div class="fg"><label class="fl">Purchase Price *</label><input class="fc" type="number" id="p-buy" placeholder="0" min="0"></div>
+      <div class="fg"><label class="fl">Sale Price *</label><input class="fc" type="number" id="p-sell" placeholder="0" min="0"></div>
+      <div class="fg"><label class="fl">Opening Stock</label><input class="fc" type="number" id="p-stock" placeholder="0" min="0"></div>
+      <div class="fg"><label class="fl">Min Stock Alert</label><input class="fc" type="number" id="p-min" placeholder="5" min="0"></div>
+    </div>
+    <div class="f-act">
+      <button class="btn" onclick="closeModal('m-product')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-category">
+  <div class="modal">
+    <div class="modal-hd"><h3>Add Category</h3><span class="xbtn" onclick="closeModal('m-category')">✕</span></div>
+    <div class="fg-grid">
+      <div class="fg"><label class="fl">Name *</label><input class="fc" id="c-name" placeholder="e.g. Tablet Cover"></div>
+      <div class="fg"><label class="fl">Icon (emoji)</label><input class="fc" id="c-icon" placeholder="📱" maxlength="2"></div>
+    </div>
+    <div class="f-act">
+      <button class="btn" onclick="closeModal('m-category')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCategory()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-customer">
+  <div class="modal">
+    <div class="modal-hd"><h3>Add Customer</h3><span class="xbtn" onclick="closeModal('m-customer')">✕</span></div>
+    <div class="fg-grid">
+      <div class="fg"><label class="fl">Name *</label><input class="fc" id="cu-name" placeholder="Full name"></div>
+      <div class="fg"><label class="fl">Phone *</label><input class="fc" id="cu-phone" placeholder="01700-000000"></div>
+      <div class="fg" style="grid-column:1/-1"><label class="fl">Address</label><input class="fc" id="cu-addr" placeholder="Address"></div>
+    </div>
+    <div class="f-act">
+      <button class="btn" onclick="closeModal('m-customer')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCustomer()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-supplier">
+  <div class="modal">
+    <div class="modal-hd"><h3>Add Supplier</h3><span class="xbtn" onclick="closeModal('m-supplier')">✕</span></div>
+    <div class="fg-grid">
+      <div class="fg"><label class="fl">Name *</label><input class="fc" id="su-name" placeholder="Supplier name"></div>
+      <div class="fg"><label class="fl">Phone</label><input class="fc" id="su-phone" placeholder="01700-000000"></div>
+      <div class="fg"><label class="fl">Area</label><input class="fc" id="su-area" placeholder="Dhaka / Chittagong"></div>
+      <div class="fg"><label class="fl">Email</label><input class="fc" id="su-email" placeholder="email@example.com"></div>
+    </div>
+    <div class="f-act">
+      <button class="btn" onclick="closeModal('m-supplier')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSupplier()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-expense">
+  <div class="modal">
+    <div class="modal-hd"><h3>Add Expense</h3><span class="xbtn" onclick="closeModal('m-expense')">✕</span></div>
+    <div class="fg-grid">
+      <div class="fg"><label class="fl">Category</label>
+        <select class="fc" id="ex-cat"><option>Rent</option><option>Salary</option><option>Utility</option><option>Transport</option><option>Marketing</option><option>Other</option></select>
+      </div>
+      <div class="fg"><label class="fl">Amount (৳) *</label><input class="fc" type="number" id="ex-amt" placeholder="0" min="0"></div>
+      <div class="fg"><label class="fl">Payment Method</label>
+        <select class="fc" id="ex-pay"><option>Cash</option><option>Bank</option><option>bKash</option></select>
+      </div>
+      <div class="fg" style="grid-column:1/-1"><label class="fl">Description</label><input class="fc" id="ex-desc" placeholder="Details..."></div>
+    </div>
+    <div class="f-act">
+      <button class="btn" onclick="closeModal('m-expense')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveExpense()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-stockin">
+  <div class="modal">
+    <div class="modal-hd"><h3>📥 Stock In</h3><span class="xbtn" onclick="closeModal('m-stockin')">✕</span></div>
+    <div class="fg-grid">
+      <div class="fg" style="grid-column:1/-1"><label class="fl">Product *</label><select class="fc" id="si-prod"><option value="">Select product...</option></select></div>
+      <div class="fg"><label class="fl">Quantity *</label><input class="fc" type="number" id="si-qty" placeholder="0" min="1"></div>
+      <div class="fg"><label class="fl">Note</label><input class="fc" id="si-note" placeholder="e.g. Purchase from Dhaka"></div>
+    </div>
+    <div class="f-act">
+      <button class="btn" onclick="closeModal('m-stockin')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveStockIn()">Add Stock</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-stockout">
+  <div class="modal">
+    <div class="modal-hd"><h3>📤 Stock Out</h3><span class="xbtn" onclick="closeModal('m-stockout')">✕</span></div>
+    <div class="fg-grid">
+      <div class="fg" style="grid-column:1/-1"><label class="fl">Product *</label><select class="fc" id="so-prod"><option value="">Select product...</option></select></div>
+      <div class="fg"><label class="fl">Quantity *</label><input class="fc" type="number" id="so-qty" placeholder="0" min="1"></div>
+      <div class="fg"><label class="fl">Reason</label><input class="fc" id="so-note" placeholder="e.g. Damaged / returned"></div>
+    </div>
+    <div class="f-act">
+      <button class="btn" onclick="closeModal('m-stockout')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveStockOut()">Remove Stock</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-stockadj">
+  <div class="modal">
+    <div class="modal-hd"><h3>⚖️ Stock Adjust</h3><span class="xbtn" onclick="closeModal('m-stockadj')">✕</span></div>
+    <div class="fg-grid">
+      <div class="fg" style="grid-column:1/-1"><label class="fl">Product *</label><select class="fc" id="sa-prod"><option value="">Select product...</option></select></div>
+      <div class="fg"><label class="fl">Set New Stock *</label><input class="fc" type="number" id="sa-qty" placeholder="0" min="0"></div>
+      <div class="fg"><label class="fl">Reason</label><input class="fc" id="sa-note" placeholder="e.g. Physical count"></div>
+    </div>
+    <div class="f-act">
+      <button class="btn" onclick="closeModal('m-stockadj')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveStockAdj()">Adjust</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-purchase">
+  <div class="modal">
+    <div class="modal-hd"><h3>New Purchase</h3><span class="xbtn" onclick="closeModal('m-purchase')">✕</span></div>
+    <div class="fg-grid">
+      <div class="fg"><label class="fl">Supplier *</label><select class="fc" id="pu-sup"><option value="">Select...</option></select></div>
+      <div class="fg"><label class="fl">Invoice No</label><input class="fc" id="pu-inv" placeholder="PUR-001"></div>
+      <div class="fg"><label class="fl">Total Amount (৳) *</label><input class="fc" type="number" id="pu-total" placeholder="0" min="0"></div>
+      <div class="fg"><label class="fl">Amount Paid (৳)</label><input class="fc" type="number" id="pu-paid" placeholder="0" min="0"></div>
+      <div class="fg"><label class="fl">Payment Method</label><select class="fc" id="pu-pay"><option>Cash</option><option>Bank</option><option>Due</option></select></div>
+      <div class="fg" style="grid-column:1/-1"><label class="fl">Note</label><input class="fc" id="pu-note" placeholder="Optional"></div>
+    </div>
+    <div class="f-act">
+      <button class="btn" onclick="closeModal('m-purchase')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePurchase()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-user">
+  <div class="modal">
+    <div class="modal-hd"><h3>Add User</h3><span class="xbtn" onclick="closeModal('m-user')">✕</span></div>
+    <div class="fg-grid">
+      <div class="fg"><label class="fl">Full Name *</label><input class="fc" id="u-name" placeholder="Full name"></div>
+      <div class="fg"><label class="fl">Phone *</label><input class="fc" id="u-phone" placeholder="01700-000000"></div>
+      <div class="fg"><label class="fl">Role</label><select class="fc" id="u-role"><option value="admin">Admin</option><option value="manager">Manager</option><option value="cashier">Cashier</option></select></div>
+      <div class="fg"><label class="fl">Branch</label><select class="fc" id="u-store"><option value="">All Branches</option></select></div>
+    </div>
+    <div class="f-act">
+      <button class="btn" onclick="closeModal('m-user')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveUser()">Create User</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-store">
+  <div class="modal">
+    <div class="modal-hd"><h3>Add Store</h3><span class="xbtn" onclick="closeModal('m-store')">✕</span></div>
+    <div class="fg-grid">
+      <div class="fg"><label class="fl">Store Name *</label><input class="fc" id="st-name" placeholder="e.g. North Branch"></div>
+      <div class="fg"><label class="fl">Code</label><input class="fc" id="st-code" placeholder="NBR" maxlength="5"></div>
+      <div class="fg" style="grid-column:1/-1"><label class="fl">Address</label><input class="fc" id="st-addr" placeholder="Full address"></div>
+      <div class="fg"><label class="fl">Manager</label><input class="fc" id="st-mgr" placeholder="Manager name"></div>
+      <div class="fg"><label class="fl">Phone</label><input class="fc" id="st-phone" placeholder="01700-000000"></div>
+    </div>
+    <div class="f-act">
+      <button class="btn" onclick="closeModal('m-store')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveStore()">Add Store</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-warranty">
+  <div class="modal">
+    <div class="modal-hd"><h3>Register Warranty</h3><span class="xbtn" onclick="closeModal('m-warranty')">✕</span></div>
+    <div class="fg-grid">
+      <div class="fg"><label class="fl">Invoice No *</label><input class="fc" id="w-inv" placeholder="INV-00xx"></div>
+      <div class="fg"><label class="fl">Customer</label><select class="fc" id="w-cust"><option value="">Walk-in</option></select></div>
+      <div class="fg" style="grid-column:1/-1"><label class="fl">Product *</label><select class="fc" id="w-prod"><option value="">Select...</option></select></div>
+      <div class="fg"><label class="fl">IMEI (optional)</label><input class="fc" id="w-imei" placeholder="15-digit IMEI" maxlength="15"></div>
+      <div class="fg"><label class="fl">Sale Date *</label><input class="fc" type="date" id="w-date"></div>
+      <div class="fg"><label class="fl">Warranty (months)</label><select class="fc" id="w-months"><option value="3">3 months</option><option value="6">6 months</option><option value="12" selected>12 months</option><option value="24">24 months</option></select></div>
+      <div class="fg"><label class="fl">Warranty Type</label><select class="fc" id="w-type"><option>Brand Warranty</option><option>Shop Warranty</option><option>International Warranty</option></select></div>
+    </div>
+    <div class="f-act">
+      <button class="btn" onclick="closeModal('m-warranty')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveWarranty()">Register</button>
+    </div>
+  </div>
+</div>
+
+<!-- SALE SUCCESS -->
+<div class="overlay" id="m-sale-ok">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-hd"><h3>✅ Sale Complete</h3><span class="xbtn" onclick="closeModal('m-sale-ok')">✕</span></div>
+    <div style="padding:22px;text-align:center">
+      <div style="font-size:42px;margin-bottom:8px">🧾</div>
+      <div style="font-size:12px;color:var(--text-3);margin-bottom:3px" id="ok-inv">INV-0001</div>
+      <div style="font-size:22px;font-weight:700;margin-bottom:4px" id="ok-amt">৳0</div>
+      <div style="font-size:13px;color:var(--text-2);margin-bottom:18px" id="ok-pay">Cash</div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button class="btn" onclick="closeModal('m-sale-ok')">Close</button>
+        <button class="btn btn-primary" onclick="printLastInvoice()">🖨 Print Invoice</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://qmgihvbdpiiyjdiwbmyv.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtZ2lodmJkcGlpeWpkaXdibXl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MzM0MjIsImV4cCI6MjEwMjMwOTQyMn0.2FYLcQ9FmlBPyCNQid4jL5oDBVpcSlKc4LSpht2bStQ';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+
+let cart={};
+let lastSale=null;
+let cfg={currency:'৳',prefix:'INV-',shop_name:'KHAJA TELECOM'};
+let currentStore=null;
+let allProducts=[];
+let allCategories=[];
+let allCustomers=[];
+let invCounter=1;
+
+// --- INIT ---
+async function init(){
+  await loadSettings();
+  await loadStores();
+  await loadCategoryFilters();
+  await loadCustomerDropdowns();
+  await loadSupplierDropdowns();
+  await loadProductDropdowns();
+  loadDashboard();
+  // invoice counter from sales count
+  const {count}=await sb.from('ryzora_sales').select('*',{count:'exact',head:true});
+  invCounter=(count||0)+1;
+}
+
+// --- SETTINGS ---
+async function loadSettings(){
+  const {data}=await sb.from('ryzora_settings').select('*');
+  if(data) data.forEach(r=>{
+    cfg[r.key]=r.value;
+    if(r.key==='shop_name'){document.getElementById('logo-name').textContent=r.value;document.getElementById('s-name').value=r.value;cfg.shop_name=r.value}
+    if(r.key==='shop_tagline' && document.getElementById('s-tag')) document.getElementById('s-tag').value=r.value;
+    if(r.key==='shop_phone' && document.getElementById('s-phone')) document.getElementById('s-phone').value=r.value;
+    if(r.key==='shop_address' && document.getElementById('s-addr')) document.getElementById('s-addr').value=r.value;
+    if(r.key==='currency'){cfg.currency=r.value;if(document.getElementById('s-curr'))document.getElementById('s-curr').value=r.value;}
+    if(r.key==='invoice_prefix'){cfg.prefix=r.value;if(document.getElementById('s-prefix'))document.getElementById('s-prefix').value=r.value;}
+    if(r.key==='logo_emoji' && r.value){setLogoText(r.value);}
+    if(r.key==='logo_url' && r.value){setLogoImg(r.value);}
+  });
+  // set avatar initial
+  document.getElementById('uavatar').textContent=(cfg.shop_name||'R')[0].toUpperCase();
+}
+
+async function saveSettings(){
+  const name=document.getElementById('s-name').value.trim()||'KHAJA TELECOM';
+  const updates=[
+    {key:'shop_name',value:name},
+    {key:'shop_tagline',value:document.getElementById('s-tag').value},
+    {key:'shop_phone',value:document.getElementById('s-phone').value},
+    {key:'shop_address',value:document.getElementById('s-addr').value},
+    {key:'currency',value:document.getElementById('s-curr').value||'৳'},
+    {key:'invoice_prefix',value:document.getElementById('s-prefix').value||'INV-'},
+    {key:'logo_emoji',value:document.getElementById('logo-emoji').value||''},
+  ];
+  for(const u of updates){
+    await sb.from('ryzora_settings').upsert(u,{onConflict:'key'});
+  }
+  cfg.currency=document.getElementById('s-curr').value||'৳';
+  cfg.prefix=document.getElementById('s-prefix').value||'INV-';
+  cfg.shop_name=name;
+  document.getElementById('logo-name').textContent=name;
+  document.getElementById('uavatar').textContent=name[0].toUpperCase();
+  toast('✅ Settings saved!');
+}
+
+function setLogoText(txt){
+  const el=document.getElementById('logo-icon');
+  el.innerHTML='';el.style.background='var(--accent)';
+  el.textContent=txt;
+  const p=document.getElementById('logo-preview');
+  if(p){p.innerHTML='';p.style.background='var(--accent)';p.textContent=txt;}
+}
+function setLogoImg(url){
+  const el=document.getElementById('logo-icon');
+  el.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover">`;
+  el.style.background='transparent';
+  const p=document.getElementById('logo-preview');
+  if(p){p.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`;p.style.background='transparent';}
+}
+function previewEmoji(v){if(v)setLogoText(v);}
+function uploadLogo(input){
+  const f=input.files[0];if(!f)return;
+  if(f.size>1048576){toast('❌ File too large (max 1MB)');return;}
+  const r=new FileReader();
+  r.onload=async e=>{
+    const url=e.target.result;
+    setLogoImg(url);
+    await sb.from('ryzora_settings').upsert({key:'logo_url',value:url},{onConflict:'key'});
+    await sb.from('ryzora_settings').upsert({key:'logo_emoji',value:''},{onConflict:'key'});
+    toast('✅ Logo saved!');
+  };r.readAsDataURL(f);
+}
+
+// --- STORES ---
+async function loadStores(){
+  const {data}=await sb.from('ryzora_stores').select('*').order('created_at');
+  const sel=document.getElementById('store-sel');
+  sel.innerHTML='';
+  if(data) data.forEach(s=>{
+    const o=document.createElement('option');o.value=s.id;o.textContent=s.name;sel.appendChild(o);
+  });
+  if(data&&data.length) currentStore=data[0].id;
+  renderStoreList(data||[]);
+  // fill user store dropdown
+  const us=document.getElementById('u-store');
+  if(us){us.innerHTML='<option value="">All Branches</option>';if(data)data.forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=s.name;us.appendChild(o);})}
+}
+function changeStore(sel){currentStore=sel.value;}
+function renderStoreList(data){
+  const el=document.getElementById('store-list');
+  if(!el)return;
+  if(!data.length){el.innerHTML='<div class="empty-state">No stores yet.</div>';return;}
+  el.innerHTML=data.map(s=>`<div class="urow">
+    <div class="uav">${(s.name||'S')[0]}</div>
+    <div class="uinfo"><div class="uname">${s.name}</div><div class="urole">${s.address||'—'} ${s.phone?'· '+s.phone:''}</div></div>
+    <button class="btn btn-sm btn-danger" onclick="deleteStore('${s.id}')">Delete</button>
+  </div>`).join('');
+}
+async function saveStore(){
+  const name=document.getElementById('st-name').value.trim();
+  if(!name){toast('❌ Store name required');return;}
+  const {error}=await sb.from('ryzora_stores').insert({
+    name,code:document.getElementById('st-code').value.trim(),
+    address:document.getElementById('st-addr').value.trim(),
+    manager:document.getElementById('st-mgr').value.trim(),
+    phone:document.getElementById('st-phone').value.trim()
+  });
+  if(error){toast('❌ '+error.message);return;}
+  closeModal('m-store');
+  clearFields(['st-name','st-code','st-addr','st-mgr','st-phone']);
+  await loadStores();toast('✅ Store added!');
+}
+async function deleteStore(id){
+  if(!confirm('Delete this store?'))return;
+  await sb.from('ryzora_stores').delete().eq('id',id);
+  await loadStores();toast('Deleted');
+}
+
+// --- USERS ---
+async function loadUsers(){
+  const {data}=await sb.from('ryzora_users').select('*,ryzora_stores(name)').order('created_at',{ascending:false});
+  const el=document.getElementById('user-list');
+  if(!el)return;
+  if(!data||!data.length){el.innerHTML='<div class="empty-state">No users yet.</div>';return;}
+  el.innerHTML=data.map(u=>`<div class="urow">
+    <div class="uav" style="background:${u.active?'var(--accent-bg)':'#f1f5f9'};color:${u.active?'var(--accent)':'var(--text-3)'}">${(u.full_name||'U')[0].toUpperCase()}</div>
+    <div class="uinfo"><div class="uname">${u.full_name} <span class="badge ${u.active?'bs':'bw'}">${u.active?'Active':'Disabled'}</span></div><div class="urole">${u.role} · ${u.ryzora_stores?.name||'All branches'} · ${u.phone}</div></div>
+    <button class="btn btn-sm ${u.active?'btn-danger':'btn-success'}" onclick="toggleUser('${u.id}',${!u.active})">${u.active?'Disable':'Enable'}</button>
+  </div>`).join('');
+}
+async function saveUser(){
+  const name=document.getElementById('u-name').value.trim();
+  const phone=document.getElementById('u-phone').value.trim();
+  if(!name||!phone){toast('❌ Name and phone required');return;}
+  const store=document.getElementById('u-store').value||null;
+  const role=document.getElementById('u-role').value;
+  const {error}=await sb.from('ryzora_users').insert({full_name:name,phone,role,store_id:store});
+  if(error){toast('❌ '+error.message);return;}
+  closeModal('m-user');clearFields(['u-name','u-phone']);
+  await loadUsers();toast('✅ User created!');
+}
+async function toggleUser(id,active){
+  await sb.from('ryzora_users').update({active}).eq('id',id);
+  await loadUsers();
+}
+
+// --- CATEGORIES ---
+async function loadCategoryFilters(){
+  const {data}=await sb.from('ryzora_categories').select('*').order('name');
+  allCategories=data||[];
+  // POS filter buttons
+  const cf=document.getElementById('cat-filters');
+  if(cf){
+    cf.innerHTML='<button class="btn btn-primary btn-sm" onclick="filterPOS(\'\')">All</button>';
+    allCategories.forEach(c=>{
+      const b=document.createElement('button');b.className='btn btn-sm';
+      b.textContent=c.icon+' '+c.name;b.onclick=()=>filterPOS(c.id);
+      cf.appendChild(b);
+    });
+  }
+  // product category dropdown
+  const pd=document.getElementById('p-cat');
+  if(pd){pd.innerHTML='<option value="">Select...</option>';allCategories.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.icon+' '+c.name;pd.appendChild(o);});}
+  // product filter dropdown
+  const pf=document.getElementById('prod-cat-filter');
+  if(pf){pf.innerHTML='<option value="">All Categories</option>';allCategories.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.icon+' '+c.name;pf.appendChild(o);});}
+  renderCategories(allCategories);
+}
+function renderCategories(data){
+  const el=document.getElementById('cat-grid');if(!el)return;
+  if(!data.length){el.innerHTML='<div class="empty-state">No categories.</div>';return;}
+  el.innerHTML=data.map(c=>`<div class="tag-card">
+    <div class="tag-icon">${c.icon||'📦'}</div>
+    <div class="tag-info"><div class="tn">${c.name}</div>
+    <div class="tc"><button class="btn btn-sm btn-danger" style="padding:2px 8px;font-size:11px" onclick="deleteCat('${c.id}')">Delete</button></div></div>
+  </div>`).join('');
+}
+async function saveCategory(){
+  const name=document.getElementById('c-name').value.trim();
+  if(!name){toast('❌ Name required');return;}
+  const icon=document.getElementById('c-icon').value.trim()||'📦';
+  const {error}=await sb.from('ryzora_categories').insert({name,icon});
+  if(error){toast('❌ '+error.message);return;}
+  closeModal('m-category');clearFields(['c-name','c-icon']);
+  await loadCategoryFilters();toast('✅ Category added!');
+}
+async function deleteCat(id){
+  if(!confirm('Delete category?'))return;
+  await sb.from('ryzora_categories').delete().eq('id',id);
+  await loadCategoryFilters();
+}
+
+// --- PRODUCTS ---
+let posFilter='';
+async function loadProductDropdowns(){
+  const {data}=await sb.from('ryzora_products').select('*').order('name');
+  allProducts=data||[];
+  // stock modals
+  ['si-prod','so-prod','sa-prod','w-prod'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.innerHTML='<option value="">Select product...</option>';allProducts.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name+' (Stock: '+p.stock+')';el.appendChild(o);});}
+  });
+}
+async function loadProducts(){
+  const catId=document.getElementById('prod-cat-filter')?.value||'';
+  let q=sb.from('ryzora_products').select('*,ryzora_categories(name,icon)').order('created_at',{ascending:false});
+  if(catId) q=q.eq('category_id',catId);
+  const {data,error}=await q;
+  const el=document.getElementById('prod-table');
+  if(!el)return;
+  if(!data||!data.length){el.innerHTML='<div class="empty-state">No products found.</div>';return;}
+  const low=data.filter(p=>p.stock<=p.min_stock).length;
+  document.getElementById('prod-count').textContent=`All Products (${data.length})`;
+  document.getElementById('lowbadge').textContent=low;
+  document.getElementById('d-prods').textContent=data.length;
+  document.getElementById('d-low').textContent=low;
+  el.innerHTML=`<table><thead><tr><th>SKU</th><th>Product</th><th>Category</th><th>Buy</th><th>Sell</th><th>Stock</th><th>Status</th><th>Action</th></tr></thead><tbody>`
+    +data.map(p=>`<tr>
+      <td>${p.sku||'—'}</td>
+      <td><b>${p.name}</b>${p.brand?'<br><span style="font-size:11px;color:var(--text-3)">'+p.brand+'</span>':''}</td>
+      <td>${p.ryzora_categories?(p.ryzora_categories.icon+' '+p.ryzora_categories.name):'—'}</td>
+      <td>${cfg.currency}${(p.purchase_price||0).toLocaleString()}</td>
+      <td>${cfg.currency}${(p.sale_price||0).toLocaleString()}</td>
+      <td><b>${p.stock}</b></td>
+      <td><span class="badge ${p.stock<=0?'bd':p.stock<=p.min_stock?'bw':'bs'}">${p.stock<=0?'Out':p.stock<=p.min_stock?'Low':'OK'}</span></td>
+      <td><button class="btn btn-sm btn-danger" onclick="deleteProduct('${p.id}')">Delete</button></td>
+    </tr>`).join('')+'</tbody></table>';
+}
+async function saveProduct(){
+  const name=document.getElementById('p-name').value.trim();
+  const sell=parseFloat(document.getElementById('p-sell').value)||0;
+  if(!name){toast('❌ Product name required');return;}
+  if(!sell){toast('❌ Sale price required');return;}
+  const {error}=await sb.from('ryzora_products').insert({
+    name,sku:document.getElementById('p-sku').value.trim()||null,
+    category_id:document.getElementById('p-cat').value||null,
+    brand:document.getElementById('p-brand').value.trim(),
+    purchase_price:parseFloat(document.getElementById('p-buy').value)||0,
+    sale_price:sell,stock:parseInt(document.getElementById('p-stock').value)||0,
+    min_stock:parseInt(document.getElementById('p-min').value)||5,
+    store_id:currentStore||null
+  });
+  if(error){toast('❌ '+error.message);return;}
+  closeModal('m-product');clearFields(['p-name','p-sku','p-brand','p-buy','p-sell','p-stock','p-min']);
+  document.getElementById('p-cat').value='';
+  await loadProductDropdowns();await loadProducts();await loadPOS();
+  toast('✅ Product saved!');
+}
+async function deleteProduct(id){
+  if(!confirm('Delete this product?'))return;
+  await sb.from('ryzora_products').delete().eq('id',id);
+  await loadProductDropdowns();await loadProducts();await loadPOS();
+}
+
+// --- POS ---
+async function loadPOS(){
+  const {data}=await sb.from('ryzora_products').select('*,ryzora_categories(id,name,icon)').order('name');
+  allProducts=data||[];
+  renderPOSGrid(posFilter);
+}
+function filterPOS(catId){
+  posFilter=catId;
+  document.querySelectorAll('#cat-filters .btn').forEach(b=>b.className='btn btn-sm');
+  event.target.className='btn btn-primary btn-sm';
+  renderPOSGrid(catId);
+}
+function renderPOSGrid(catId){
+  const el=document.getElementById('pos-grid');if(!el)return;
+  const list=catId?allProducts.filter(p=>p.category_id===catId):allProducts;
+  if(!list.length){el.innerHTML='<div class="empty-state">No products.</div>';return;}
+  el.innerHTML=list.map(p=>`<div class="prod-tile ${p.stock<=0?'':''}${p.stock<=0?'style="opacity:.45;pointer-events:none"':''}">
+    <div onclick="${p.stock>0?`addToCart('${p.id}')`:''}" style="cursor:${p.stock>0?'pointer':'not-allowed'}">
+      <div style="font-size:26px">${p.ryzora_categories?.icon||'📦'}</div>
+      <div class="pn">${p.name}</div>
+      <div class="pp">${cfg.currency}${(p.sale_price||0).toLocaleString()}</div>
+      <div class="ps">${p.stock} in stock</div>
+    </div>
+  </div>`).join('');
+  // re-attach click (cleaner)
+  el.querySelectorAll('.prod-tile').forEach((tile,i)=>{
+    const p=list[i];if(p.stock>0)tile.onclick=()=>addToCart(p.id);
+  });
+}
+function addToCart(id){
+  const p=allProducts.find(x=>x.id===id);if(!p||p.stock<=0)return;
+  if(cart[id]) cart[id].qty++;
+  else cart[id]={...p,qty:1};
+  renderCart();
+}
+function changeQty(id,d){
+  if(!cart[id])return;
+  cart[id].qty+=d;
+  if(cart[id].qty<=0)delete cart[id];
+  renderCart();
+}
+function clearCart(){cart={};renderCart();}
+function renderCart(){
+  const items=Object.values(cart);
+  const disc=parseInt(document.getElementById('disc-inp')?.value)||0;
+  const sub=items.reduce((s,i)=>s+i.sale_price*i.qty,0);
+  const total=Math.max(0,sub-disc);
+  document.getElementById('cart-count').textContent=items.length+' items';
+  document.getElementById('cart-sub').textContent=cfg.currency+sub.toLocaleString();
+  document.getElementById('cart-total').textContent=cfg.currency+total.toLocaleString();
+  const el=document.getElementById('cart-items');
+  if(!items.length){el.innerHTML='<div class="empty-state">No items.<br>Click a product.</div>';return;}
+  el.innerHTML=items.map(i=>`<div class="ci">
+    <div class="ci-name">${i.name}</div>
+    <div class="qty-row">
+      <button class="qb" onclick="changeQty('${i.id}',-1)">−</button>
+      <span style="font-size:13px;font-weight:500;min-width:18px;text-align:center">${i.qty}</span>
+      <button class="qb" onclick="changeQty('${i.id}',1)">+</button>
+    </div>
+    <div class="ci-pr">${cfg.currency}${(i.sale_price*i.qty).toLocaleString()}</div>
+  </div>`).join('');
+}
+async function completeSale(){
+  const items=Object.values(cart);
+  if(!items.length){toast('❌ Add items first!');return;}
+  const btn=document.getElementById('charge-btn');
+  btn.disabled=true;btn.textContent='Processing...';
+  const disc=parseInt(document.getElementById('disc-inp').value)||0;
+  const sub=items.reduce((s,i)=>s+i.sale_price*i.qty,0);
+  const total=Math.max(0,sub-disc);
+  const method=document.getElementById('pay-method').value;
+  const custId=document.getElementById('pos-cust').value||null;
+  const custName=document.getElementById('pos-cust').options[document.getElementById('pos-cust').selectedIndex].text;
+  const invNo=cfg.prefix+(String(invCounter).padStart(4,'0'));
+  invCounter++;
+  // insert sale
+  const {data:sale,error:se}=await sb.from('ryzora_sales').insert({
+    invoice_no:invNo,customer_id:custId||null,customer_name:custName,
+    subtotal:sub,discount:disc,total,payment_method:method,store_id:currentStore||null
+  }).select().single();
+  if(se){toast('❌ Sale error: '+se.message);btn.disabled=false;btn.textContent='💳 Charge';return;}
+  // insert sale items & update stock
+  for(const i of items){
+    await sb.from('ryzora_sale_items').insert({sale_id:sale.id,product_id:i.id,product_name:i.name,qty:i.qty,price:i.sale_price,total:i.sale_price*i.qty});
+    const newStock=Math.max(0,(i.stock||0)-i.qty);
+    await sb.from('ryzora_products').update({stock:newStock}).eq('id',i.id);
+    await sb.from('ryzora_stock_logs').insert({product_id:i.id,product_name:i.name,type:'OUT',qty:-i.qty,stock_before:i.stock,stock_after:newStock,note:'POS Sale '+invNo});
+  }
+  // update customer due
+  if(custId && method==='Due'){
+    const cust=allCustomers.find(c=>c.id===custId);
+    if(cust) await sb.from('ryzora_customers').update({total_due:(cust.total_due||0)+total}).eq('id',custId);
+  }
+  lastSale={inv:invNo,total,method,custName,items};
+  document.getElementById('ok-inv').textContent=invNo;
+  document.getElementById('ok-amt').textContent=cfg.currency+total.toLocaleString();
+  document.getElementById('ok-pay').textContent=method+' Payment';
+  clearCart();
+  document.getElementById('disc-inp').value='0';
+  btn.disabled=false;btn.textContent='💳 Charge';
+  await loadProductDropdowns();await loadPOS();
+  openModal('m-sale-ok');
+}
+function printLastInvoice(){
+  if(!lastSale)return;
+  const s=lastSale;
+  const rows=s.items.map(i=>`<tr><td>${i.name}</td><td style="text-align:center">${i.qty}</td><td style="text-align:right">${cfg.currency}${i.sale_price.toLocaleString()}</td><td style="text-align:right">${cfg.currency}${(i.sale_price*i.qty).toLocaleString()}</td></tr>`).join('');
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${s.inv}</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:sans-serif;font-size:13px;padding:20px;max-width:400px;margin:0 auto}.h{text-align:center;margin-bottom:12px}.sn{font-size:20px;font-weight:700}.ss{font-size:11px;color:#888}.d{border-top:1px dashed #ccc;margin:10px 0}.m{display:flex;justify-content:space-between;font-size:12px;color:#555;margin-bottom:3px}table{width:100%;border-collapse:collapse;margin:8px 0}th{font-size:11px;text-transform:uppercase;color:#555;padding:5px 3px;border-bottom:1px solid #ddd;text-align:left}td{padding:6px 3px;border-bottom:1px solid #f0f0f0}.tr{display:flex;justify-content:space-between;font-size:13px;padding:2px 0}.gt{font-size:15px;font-weight:700;border-top:1px solid #ddd;padding-top:6px;margin-top:4px}.pay{display:inline-block;background:#eef2ff;color:#4f46e5;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;margin-top:8px}.ft{text-align:center;font-size:11px;color:#999;margin-top:14px;padding-top:10px;border-top:1px dashed #ccc}@media print{body{padding:0}}</style></head><body><div class="h"><div class="sn">${cfg.shop_name}</div><div class="ss">Mobile Accessories</div></div><div class="d"></div><div class="m"><span><b>Invoice:</b> ${s.inv}</span><span>${new Date().toLocaleDateString('en-GB')}</span></div><div class="m"><span><b>Customer:</b> ${s.custName}</span></div><div class="d"></div><table><thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th><th style="text-align:right">Total</th></tr></thead><tbody>${rows}</tbody></table><div class="tr"><span>Total</span><span>${cfg.currency}${s.total.toLocaleString()}</span></div><div><span class="pay">${s.method}</span></div><div class="ft">Thank you for shopping at ${cfg.shop_name}!</div><script>window.onload=function(){window.print();}<\/script></body></html>`;
+  const w=window.open('','_blank','width=480,height=650');if(w){w.document.write(html);w.document.close();}
+}
+
+// --- CUSTOMERS ---
+async function loadCustomerDropdowns(){
+  const {data}=await sb.from('ryzora_customers').select('*').order('name');
+  allCustomers=data||[];
+  const sel=document.getElementById('pos-cust');
+  if(sel){sel.innerHTML='<option value="">Walk-in Customer</option>';allCustomers.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name+(c.phone?' ('+c.phone+')':'');sel.appendChild(o);});}
+  const ws=document.getElementById('w-cust');
+  if(ws){ws.innerHTML='<option value="">Walk-in</option>';allCustomers.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;ws.appendChild(o);});}
+}
+async function loadCustomers(){
+  const {data}=await sb.from('ryzora_customers').select('*').order('created_at',{ascending:false});
+  document.getElementById('d-custs').textContent=data?.length||0;
+  const el=document.getElementById('customer-table');if(!el)return;
+  if(!data||!data.length){el.innerHTML='<div class="empty-state">No customers yet.</div>';return;}
+  el.innerHTML=`<table><thead><tr><th>Name</th><th>Phone</th><th>Address</th><th>Due</th><th>Action</th></tr></thead><tbody>`
+    +data.map(c=>`<tr><td><b>${c.name}</b></td><td>${c.phone||'—'}</td><td>${c.address||'—'}</td><td style="color:${c.total_due>0?'var(--danger)':'inherit'}">${cfg.currency}${(c.total_due||0).toLocaleString()}</td><td><button class="btn btn-sm btn-danger" onclick="deleteCustomer('${c.id}')">Delete</button></td></tr>`).join('')+'</tbody></table>';
+}
+async function saveCustomer(){
+  const name=document.getElementById('cu-name').value.trim();
+  const phone=document.getElementById('cu-phone').value.trim();
+  if(!name){toast('❌ Name required');return;}
+  const {error}=await sb.from('ryzora_customers').insert({name,phone,address:document.getElementById('cu-addr').value.trim()});
+  if(error){toast('❌ '+error.message);return;}
+  closeModal('m-customer');clearFields(['cu-name','cu-phone','cu-addr']);
+  await loadCustomerDropdowns();await loadCustomers();toast('✅ Customer added!');
+}
+async function deleteCustomer(id){
+  if(!confirm('Delete customer?'))return;
+  await sb.from('ryzora_customers').delete().eq('id',id);
+  await loadCustomerDropdowns();await loadCustomers();
+}
+
+// --- SUPPLIERS ---
+async function loadSupplierDropdowns(){
+  const {data}=await sb.from('ryzora_suppliers').select('*').order('name');
+  const sel=document.getElementById('pu-sup');
+  if(sel){sel.innerHTML='<option value="">Select supplier...</option>';(data||[]).forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=s.name;sel.appendChild(o);});}
+}
+async function loadSuppliers(){
+  const {data}=await sb.from('ryzora_suppliers').select('*').order('created_at',{ascending:false});
+  const el=document.getElementById('supplier-table');if(!el)return;
+  if(!data||!data.length){el.innerHTML='<div class="empty-state">No suppliers yet.</div>';return;}
+  el.innerHTML=`<table><thead><tr><th>Name</th><th>Phone</th><th>Area</th><th>Action</th></tr></thead><tbody>`
+    +data.map(s=>`<tr><td><b>${s.name}</b></td><td>${s.phone||'—'}</td><td>${s.area||'—'}</td><td><button class="btn btn-sm btn-danger" onclick="deleteSupplier('${s.id}')">Delete</button></td></tr>`).join('')+'</tbody></table>';
+}
+async function saveSupplier(){
+  const name=document.getElementById('su-name').value.trim();
+  if(!name){toast('❌ Name required');return;}
+  const {error}=await sb.from('ryzora_suppliers').insert({name,phone:document.getElementById('su-phone').value.trim(),area:document.getElementById('su-area').value.trim(),email:document.getElementById('su-email').value.trim()});
+  if(error){toast('❌ '+error.message);return;}
+  closeModal('m-supplier');clearFields(['su-name','su-phone','su-area','su-email']);
+  await loadSupplierDropdowns();await loadSuppliers();toast('✅ Supplier added!');
+}
+async function deleteSupplier(id){
+  if(!confirm('Delete supplier?'))return;
+  await sb.from('ryzora_suppliers').delete().eq('id',id);
+  await loadSupplierDropdowns();await loadSuppliers();
+}
+
+// --- PURCHASES ---
+async function loadPurchases(){
+  const {data}=await sb.from('ryzora_purchases').select('*,ryzora_suppliers(name)').order('created_at',{ascending:false});
+  const el=document.getElementById('purchase-table');if(!el)return;
+  if(!data||!data.length){el.innerHTML='<div class="empty-state">No purchases yet.</div>';return;}
+  el.innerHTML=`<table><thead><tr><th>Invoice</th><th>Date</th><th>Supplier</th><th>Total</th><th>Paid</th><th>Due</th><th>Status</th></tr></thead><tbody>`
+    +data.map(p=>{const due=(p.total||0)-(p.paid||0);return`<tr><td>${p.invoice_no||'—'}</td><td>${new Date(p.created_at).toLocaleDateString('en-GB')}</td><td>${p.ryzora_suppliers?.name||p.supplier_name||'—'}</td><td>${cfg.currency}${(p.total||0).toLocaleString()}</td><td>${cfg.currency}${(p.paid||0).toLocaleString()}</td><td style="color:${due>0?'var(--danger)':'inherit'}">${cfg.currency}${due.toLocaleString()}</td><td><span class="badge ${due<=0?'bs':p.paid>0?'bw':'bd'}">${due<=0?'Paid':p.paid>0?'Partial':'Due'}</span></td></tr>`}).join('')+'</tbody></table>';
+}
+async function savePurchase(){
+  const supId=document.getElementById('pu-sup').value;
+  const total=parseFloat(document.getElementById('pu-total').value)||0;
+  if(!total){toast('❌ Total amount required');return;}
+  const supName=document.getElementById('pu-sup').options[document.getElementById('pu-sup').selectedIndex]?.text||'';
+  const {error}=await sb.from('ryzora_purchases').insert({
+    supplier_id:supId||null,supplier_name:supName,
+    invoice_no:document.getElementById('pu-inv').value.trim(),
+    total,paid:parseFloat(document.getElementById('pu-paid').value)||0,
+    payment_method:document.getElementById('pu-pay').value,
+    note:document.getElementById('pu-note').value.trim()
+  });
+  if(error){toast('❌ '+error.message);return;}
+  closeModal('m-purchase');clearFields(['pu-inv','pu-total','pu-paid','pu-note']);
+  await loadPurchases();toast('✅ Purchase saved!');
+}
+
+// --- SALES HISTORY ---
+async function loadSalesHistory(){
+  const {data}=await sb.from('ryzora_sales').select('*').order('created_at',{ascending:false}).limit(50);
+  const el=document.getElementById('sales-table');if(!el)return;
+  if(!data||!data.length){el.innerHTML='<div class="empty-state">No sales yet.</div>';return;}
+  el.innerHTML=`<table><thead><tr><th>Invoice</th><th>Date</th><th>Customer</th><th>Total</th><th>Method</th><th>Action</th></tr></thead><tbody>`
+    +data.map(s=>`<tr><td><b>${s.invoice_no}</b></td><td>${new Date(s.created_at).toLocaleDateString('en-GB')}</td><td>${s.customer_name||'Walk-in'}</td><td>${cfg.currency}${(s.total||0).toLocaleString()}</td><td><span class="badge ba">${s.payment_method}</span></td><td><button class="btn btn-sm" onclick="reprintSale('${s.id}','${s.invoice_no}','${s.customer_name||'Walk-in'}',${s.total},'${s.payment_method}')">Print</button></td></tr>`).join('')+'</tbody></table>';
+}
+async function reprintSale(id,inv,cust,total,method){
+  const {data}=await sb.from('ryzora_sale_items').select('*').eq('sale_id',id);
+  const s={inv,total,method,custName:cust,items:data||[]};
+  lastSale=s;printLastInvoice();
+}
+
+// --- EXPENSES ---
+async function loadExpenses(){
+  const {data}=await sb.from('ryzora_expenses').select('*').order('created_at',{ascending:false});
+  const el=document.getElementById('expense-table');if(!el)return;
+  if(!data||!data.length){el.innerHTML='<div class="empty-state">No expenses yet.</div>';return;}
+  el.innerHTML=`<table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Method</th><th>Action</th></tr></thead><tbody>`
+    +data.map(e=>`<tr><td>${new Date(e.created_at).toLocaleDateString('en-GB')}</td><td>${e.category||'—'}</td><td>${e.description||'—'}</td><td>${cfg.currency}${(e.amount||0).toLocaleString()}</td><td>${e.payment_method||'—'}</td><td><button class="btn btn-sm btn-danger" onclick="deleteExpense('${e.id}')">Delete</button></td></tr>`).join('')+'</tbody></table>';
+}
+async function saveExpense(){
+  const amt=parseFloat(document.getElementById('ex-amt').value)||0;
+  if(!amt){toast('❌ Amount required');return;}
+  const {error}=await sb.from('ryzora_expenses').insert({category:document.getElementById('ex-cat').value,description:document.getElementById('ex-desc').value.trim(),amount:amt,payment_method:document.getElementById('ex-pay').value});
+  if(error){toast('❌ '+error.message);return;}
+  closeModal('m-expense');clearFields(['ex-amt','ex-desc']);
+  await loadExpenses();toast('✅ Expense saved!');
+}
+async function deleteExpense(id){
+  if(!confirm('Delete expense?'))return;
+  await sb.from('ryzora_expenses').delete().eq('id',id);
+  await loadExpenses();
+}
+
+// --- STOCK ---
+async function loadStockLog(){
+  const {data}=await sb.from('ryzora_stock_logs').select('*').order('created_at',{ascending:false}).limit(60);
+  const el=document.getElementById('stock-table');if(!el)return;
+  if(!data||!data.length){el.innerHTML='<div class="empty-state">No stock movements yet.</div>';return;}
+  el.innerHTML=`<table><thead><tr><th>Date</th><th>Product</th><th>Type</th><th>Qty</th><th>Before</th><th>After</th><th>Note</th></tr></thead><tbody>`
+    +data.map(l=>`<tr><td>${new Date(l.created_at).toLocaleDateString('en-GB')}</td><td>${l.product_name||'—'}</td><td><span class="badge ${l.type==='IN'?'bs':l.type==='OUT'?'bd':l.type==='ADJUST'?'bw':'ba'}">${l.type}</span></td><td>${l.qty>0?'+':''} ${l.qty}</td><td>${l.stock_before}</td><td>${l.stock_after}</td><td>${l.note||'—'}</td></tr>`).join('')+'</tbody></table>';
+}
+async function saveStockIn(){
+  const id=document.getElementById('si-prod').value;const qty=parseInt(document.getElementById('si-qty').value)||0;
+  if(!id||!qty){toast('❌ Product and qty required');return;}
+  const prod=allProducts.find(p=>p.id===id);if(!prod)return;
+  const newStock=(prod.stock||0)+qty;
+  await sb.from('ryzora_products').update({stock:newStock}).eq('id',id);
+  await sb.from('ryzora_stock_logs').insert({product_id:id,product_name:prod.name,type:'IN',qty,stock_before:prod.stock,stock_after:newStock,note:document.getElementById('si-note').value.trim()});
+  closeModal('m-stockin');clearFields(['si-qty','si-note']);document.getElementById('si-prod').value='';
+  await loadProductDropdowns();await loadStockLog();toast('✅ Stock added!');
+}
+async function saveStockOut(){
+  const id=document.getElementById('so-prod').value;const qty=parseInt(document.getElementById('so-qty').value)||0;
+  if(!id||!qty){toast('❌ Product and qty required');return;}
+  const prod=allProducts.find(p=>p.id===id);if(!prod)return;
+  const newStock=Math.max(0,(prod.stock||0)-qty);
+  await sb.from('ryzora_products').update({stock:newStock}).eq('id',id);
+  await sb.from('ryzora_stock_logs').insert({product_id:id,product_name:prod.name,type:'OUT',qty:-qty,stock_before:prod.stock,stock_after:newStock,note:document.getElementById('so-note').value.trim()});
+  closeModal('m-stockout');clearFields(['so-qty','so-note']);document.getElementById('so-prod').value='';
+  await loadProductDropdowns();await loadStockLog();toast('✅ Stock removed!');
+}
+async function saveStockAdj(){
+  const id=document.getElementById('sa-prod').value;const qty=parseInt(document.getElementById('sa-qty').value);
+  if(!id||isNaN(qty)){toast('❌ Product and new stock required');return;}
+  const prod=allProducts.find(p=>p.id===id);if(!prod)return;
+  const diff=qty-(prod.stock||0);
+  await sb.from('ryzora_products').update({stock:qty}).eq('id',id);
+  await sb.from('ryzora_stock_logs').insert({product_id:id,product_name:prod.name,type:'ADJUST',qty:diff,stock_before:prod.stock,stock_after:qty,note:document.getElementById('sa-note').value.trim()});
+  closeModal('m-stockadj');clearFields(['sa-qty','sa-note']);document.getElementById('sa-prod').value='';
+  await loadProductDropdowns();await loadStockLog();toast('✅ Stock adjusted!');
+}
+
+// --- LOW STOCK ---
+async function loadLowStock(){
+  const {data}=await sb.from('ryzora_products').select('*,ryzora_categories(name,icon)').order('stock');
+  const low=(data||[]).filter(p=>p.stock<=p.min_stock);
+  const al=document.getElementById('low-alert');
+  if(al) al.textContent=`🚨 ${low.length} product${low.length!==1?'s':''} at or below minimum stock`;
+  document.getElementById('lowbadge').textContent=low.length;
+  const el=document.getElementById('lowstock-table');if(!el)return;
+  if(!low.length){el.innerHTML='<div class="empty-state">✅ All products are well stocked!</div>';return;}
+  el.innerHTML=`<table><thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Min</th><th>Status</th></tr></thead><tbody>`
+    +low.map(p=>`<tr><td><b>${p.name}</b></td><td>${p.ryzora_categories?.icon||''} ${p.ryzora_categories?.name||'—'}</td><td style="font-weight:700;color:${p.stock<=0?'var(--danger)':'var(--warning)'}">${p.stock}</td><td>${p.min_stock}</td><td><span class="badge ${p.stock<=0?'bd':'bw'}">${p.stock<=0?'Out of Stock':'Low'}</span></td></tr>`).join('')+'</tbody></table>';
+}
+
+// --- REPORTS ---
+async function loadReports(){
+  const today=new Date().toISOString().slice(0,10);
+  const {data:todaySales}=await sb.from('ryzora_sales').select('total').gte('created_at',today+'T00:00:00');
+  const todayTotal=(todaySales||[]).reduce((s,r)=>s+(r.total||0),0);
+  const {data:monthSales}=await sb.from('ryzora_sales').select('total').gte('created_at',new Date().toISOString().slice(0,7)+'-01T00:00:00');
+  const monthTotal=(monthSales||[]).reduce((s,r)=>s+(r.total||0),0);
+  const {data:expenses}=await sb.from('ryzora_expenses').select('amount').gte('created_at',new Date().toISOString().slice(0,7)+'-01T00:00:00');
+  const expTotal=(expenses||[]).reduce((s,r)=>s+(r.amount||0),0);
+  const {count:prodCount}=await sb.from('ryzora_products').select('*',{count:'exact',head:true});
+  document.getElementById('d-today').textContent=cfg.currency+todayTotal.toLocaleString();
+  const rs=document.getElementById('report-stats');
+  if(rs) rs.innerHTML=`
+    <div class="stat-card"><div class="stat-lbl">Today Sales</div><div class="stat-val">${cfg.currency}${todayTotal.toLocaleString()}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Month Sales</div><div class="stat-val">${cfg.currency}${monthTotal.toLocaleString()}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Month Expenses</div><div class="stat-val" style="color:var(--danger)">${cfg.currency}${expTotal.toLocaleString()}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Est. Profit</div><div class="stat-val" style="color:var(--success)">${cfg.currency}${Math.max(0,monthTotal-expTotal).toLocaleString()}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Total Products</div><div class="stat-val">${prodCount||0}</div></div>
+  `;
+  // top products from sale_items
+  const {data:topItems}=await sb.from('ryzora_sale_items').select('product_name,qty,total').order('total',{ascending:false}).limit(10);
+  const el=document.getElementById('report-table');if(!el)return;
+  if(!topItems||!topItems.length){el.innerHTML='<div class="empty-state">No sales data yet.</div>';return;}
+  el.innerHTML=`<table><thead><tr><th>Product</th><th>Qty Sold</th><th>Revenue</th></tr></thead><tbody>`
+    +topItems.map(i=>`<tr><td>${i.product_name||'—'}</td><td>${i.qty}</td><td>${cfg.currency}${(i.total||0).toLocaleString()}</td></tr>`).join('')+'</tbody></table>';
+}
+
+// --- WARRANTY ---
+async function loadWarranties(){
+  const {data}=await sb.from('ryzora_warranties').select('*').order('created_at',{ascending:false});
+  const el=document.getElementById('warranty-table');if(!el)return;
+  if(!data||!data.length){el.innerHTML='<div class="empty-state">No warranties registered yet.</div>';return;}
+  el.innerHTML=`<table><thead><tr><th>Invoice</th><th>Customer</th><th>Product</th><th>IMEI</th><th>Sale Date</th><th>Expires</th><th>Status</th></tr></thead><tbody>`
+    +data.map(w=>{
+      const exp=new Date(w.expires_on);const now=new Date();
+      const diff=Math.ceil((exp-now)/(1000*60*60*24));
+      let st=w.status;if(st==='Active'&&diff<=30&&diff>0)st='Expiring Soon';if(st==='Active'&&diff<=0)st='Expired';
+      return`<tr><td>${w.invoice_no||'—'}</td><td>${w.customer_name||'Walk-in'}</td><td>${w.product_name||'—'}</td><td>${w.imei||'—'}</td><td>${w.sale_date?new Date(w.sale_date).toLocaleDateString('en-GB'):'—'}</td><td>${w.expires_on?new Date(w.expires_on).toLocaleDateString('en-GB'):'—'}</td><td><span class="badge ${st==='Active'?'bs':st==='Expired'?'bd':st==='Claimed'?'ba':'bw'}">${st}</span></td></tr>`;
+    }).join('')+'</tbody></table>';
+}
+async function saveWarranty(){
+  const inv=document.getElementById('w-inv').value.trim();
+  const prodId=document.getElementById('w-prod').value;
+  const saleDate=document.getElementById('w-date').value;
+  if(!inv||!prodId||!saleDate){toast('❌ Invoice, product and date required');return;}
+  const months=parseInt(document.getElementById('w-months').value)||12;
+  const exp=new Date(saleDate);exp.setMonth(exp.getMonth()+months);
+  const custId=document.getElementById('w-cust').value||null;
+  const custName=document.getElementById('w-cust').options[document.getElementById('w-cust').selectedIndex].text;
+  const prod=allProducts.find(p=>p.id===prodId);
+  const {error}=await sb.from('ryzora_warranties').insert({
+    invoice_no:inv,customer_id:custId,customer_name:custId?custName:'Walk-in',
+    product_id:prodId,product_name:prod?.name||'',
+    imei:document.getElementById('w-imei').value.trim(),
+    sale_date:saleDate,warranty_months:months,
+    warranty_type:document.getElementById('w-type').value,
+    expires_on:exp.toISOString().slice(0,10),status:'Active'
+  });
+  if(error){toast('❌ '+error.message);return;}
+  closeModal('m-warranty');clearFields(['w-inv','w-imei','w-date']);
+  document.getElementById('w-prod').value='';document.getElementById('w-cust').value='';
+  await loadWarranties();toast('✅ Warranty registered!');
+}
+async function searchWarranty(){
+  const q=document.getElementById('w-search').value.trim();
+  const el=document.getElementById('w-result');
+  if(!q){el.style.display='none';return;}
+  const {data}=await sb.from('ryzora_warranties').select('*').or(`invoice_no.ilike.%${q}%,imei.ilike.%${q}%`).limit(3);
+  el.style.display='block';
+  if(!data||!data.length){el.innerHTML='<div class="alert alert-d" style="margin:0">❌ No warranty found for "<b>'+q+'</b>"</div>';return;}
+  el.innerHTML=data.map(w=>{
+    const exp=new Date(w.expires_on);const now=new Date();const diff=Math.ceil((exp-now)/(1000*60*60*24));
+    let st=w.status;if(st==='Active'&&diff<=30&&diff>0)st='Expiring Soon';if(st==='Active'&&diff<=0)st='Expired';
+    return`<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px">
+      <div style="font-size:15px;font-weight:600;margin-bottom:6px">${w.product_name||'—'} <span class="badge ${st==='Active'?'bs':st==='Expired'?'bd':'bw'}">${st}</span></div>
+      <div style="font-size:12px;color:var(--text-2)">Invoice: <b>${w.invoice_no}</b> · Customer: <b>${w.customer_name||'Walk-in'}</b> · IMEI: ${w.imei||'—'}</div>
+      <div style="font-size:12px;color:var(--text-2);margin-top:3px">Sale: ${w.sale_date} · Expires: <b>${w.expires_on}</b> · ${w.warranty_months}mo ${w.warranty_type}</div>
+    </div>`;
+  }).join('');
+}
+
+// --- DASHBOARD ---
+async function loadDashboard(){
+  await loadProducts();
+  await loadReports();
+  // recent sales
+  const {data}=await sb.from('ryzora_sales').select('*').order('created_at',{ascending:false}).limit(5);
+  const el=document.getElementById('dash-sales');if(!el)return;
+  if(!data||!data.length){el.innerHTML='<div class="empty-state">No sales yet. Start selling from POS!</div>';return;}
+  el.innerHTML=`<table><thead><tr><th>Invoice</th><th>Customer</th><th>Total</th><th>Method</th></tr></thead><tbody>`
+    +data.map(s=>`<tr><td><b>${s.invoice_no}</b></td><td>${s.customer_name||'Walk-in'}</td><td>${cfg.currency}${(s.total||0).toLocaleString()}</td><td><span class="badge ba">${s.payment_method}</span></td></tr>`).join('')+'</tbody></table>';
+}
+
+// --- NAV ---
+const pageTitles={dashboard:'Dashboard',pos:'Point of Sale',products:'Products',categories:'Categories',stock:'Stock Log',lowstock:'Low Stock Alert',purchases:'Purchases',sales:'Sales History',suppliers:'Suppliers',customers:'Customers',expenses:'Expenses',reports:'Reports',warranty:'Warranty',settings:'Settings'};
+const pageLoaders={products:loadProducts,categories:()=>renderCategories(allCategories),stock:loadStockLog,lowstock:loadLowStock,purchases:loadPurchases,sales:loadSalesHistory,suppliers:loadSuppliers,customers:loadCustomers,expenses:loadExpenses,reports:loadReports,warranty:loadWarranties,pos:loadPOS,settings:()=>{loadStores();loadUsers();},dashboard:loadDashboard};
+
+async function go(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-i').forEach(n=>n.classList.remove('active'));
+  const el=document.getElementById('page-'+page);
+  if(el)el.classList.add('active');
+  document.getElementById('page-title').textContent=pageTitles[page]||page;
+  document.querySelectorAll('.nav-i').forEach(n=>{if(n.onclick&&n.onclick.toString().includes("'"+page+"'"))n.classList.add('active');});
+  if(pageLoaders[page]) await pageLoaders[page]();
+}
+
+// --- SETTINGS TABS ---
+function stab(t){
+  document.querySelectorAll('.stab').forEach((s,i)=>{s.classList.remove('active');});
+  document.querySelectorAll('.spanel').forEach(p=>p.classList.remove('active'));
+  const tabs={shop:0,stores:1,users:2};
+  document.querySelectorAll('.stab')[tabs[t]].classList.add('active');
+  document.getElementById('sp-'+t).classList.add('active');
+  if(t==='stores')loadStores();
+  if(t==='users')loadUsers();
+}
+
+// --- MODALS ---
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});});
+
+// --- HELPERS ---
+function clearFields(ids){ids.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});}
+function toast(msg){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:20px;right:20px;background:#1e293b;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.3);transition:opacity .3s';
+  t.textContent=msg;document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},2500);
+}
+
+// global search
+document.getElementById('global-search').addEventListener('input',async function(){
+  const q=this.value.trim();
+  if(!q||q.length<2)return;
+  const {data}=await sb.from('ryzora_products').select('id,name,sale_price,stock').ilike('name','%'+q+'%').limit(5);
+  if(data&&data.length){
+    go('products');
+    document.getElementById('prod-cat-filter').value='';
+  }
+});
+
+init();
+</script>
+</body>
+</html>
